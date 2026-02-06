@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bulk-import-export
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=development
+      - APP_PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=bulk_import_export
+      - DB_SSLMODE=disable
+      - DB_MAX_OPEN_CONNS=50
+      - DB_MAX_IDLE_CONNS=10
+      - IMPORT_BATCH_SIZE=1000
+      - IMPORT_MAX_FILE_SIZE=104857600
+      - IMPORT_UPLOAD_DIR=/app/uploads
+      - EXPORT_STREAM_BATCH_SIZE=5000
+      - EXPORT_OUTPUT_DIR=/app/exports
+      - WORKER_IMPORT_WORKERS=4
+      - WORKER_EXPORT_WORKERS=2
+      - WORKER_QUEUE_SIZE=100
+      - PROMETHEUS_ENABLED=true
+      - LOG_LEVEL=debug
+    volumes:
+      - ./uploads:/app/uploads
+      - ./exports:/app/exports
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: bulk-import-export-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=bulk_import_export
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bulk_import_export"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: bulk-import-export-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: bulk-import-export-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  app-network:
+    driver: bridge

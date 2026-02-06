@@ -1,0 +1,354 @@
+{
+	"info": {
+		"_postman_id": "bulk-import-export-collection",
+		"name": "Bulk Import/Export API",
+		"description": "API collection for testing bulk import/export with auto-captured job_id",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Import",
+			"item": [
+				{
+					"name": "Import Users (CSV)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 202 || pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('job_id', jsonData.job_id);",
+									"    pm.environment.set('last_import_resource', 'users');",
+									"    console.log('Job ID captured: ' + jsonData.job_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Idempotency-Key",
+								"value": "{{$guid}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "resource",
+									"value": "users",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/imports",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "imports"]
+						}
+					}
+				},
+				{
+					"name": "Import Articles (NDJSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 202 || pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('job_id', jsonData.job_id);",
+									"    pm.environment.set('last_import_resource', 'articles');",
+									"    console.log('Job ID captured: ' + jsonData.job_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "resource",
+									"value": "articles",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/imports",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "imports"]
+						}
+					}
+				},
+				{
+					"name": "Import Comments (NDJSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 202 || pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('job_id', jsonData.job_id);",
+									"    pm.environment.set('last_import_resource', 'comments');",
+									"    console.log('Job ID captured: ' + jsonData.job_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "resource",
+									"value": "comments",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/imports",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "imports"]
+						}
+					}
+				},
+				{
+					"name": "Get Import Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"console.log('Status: ' + jsonData.status);",
+									"if (jsonData.progress) {",
+									"    console.log('Progress: ' + jsonData.progress.successful_records + '/' + jsonData.progress.total_records);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/imports/{{job_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "imports", "{{job_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Import Errors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/imports/{{job_id}}/errors?page=1&per_page=20",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "imports", "{{job_id}}", "errors"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Export",
+			"item": [
+				{
+					"name": "Stream Export Users (NDJSON)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/exports?resource=users&format=ndjson",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "exports"],
+							"query": [
+								{
+									"key": "resource",
+									"value": "users"
+								},
+								{
+									"key": "format",
+									"value": "ndjson"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Stream Export Articles (NDJSON)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/exports?resource=articles&format=ndjson",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "exports"],
+							"query": [
+								{
+									"key": "resource",
+									"value": "articles"
+								},
+								{
+									"key": "format",
+									"value": "ndjson"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Stream Export Comments (JSON)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/exports?resource=comments&format=json",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "exports"],
+							"query": [
+								{
+									"key": "resource",
+									"value": "comments"
+								},
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Async Export (POST)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 202 || pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('export_job_id', jsonData.job_id);",
+									"    console.log('Export Job ID captured: ' + jsonData.job_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resource\": \"users\",\n    \"format\": \"ndjson\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/exports",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "exports"]
+						}
+					}
+				},
+				{
+					"name": "Get Export Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/exports/{{export_job_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "exports", "{{export_job_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Download Export File",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/exports/{{export_job_id}}/download",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "exports", "{{export_job_id}}", "download"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		}
+	]
+}

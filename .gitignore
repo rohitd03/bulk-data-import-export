@@ -1,0 +1,52 @@
+# Environment files (keep .env.example as reference)
+.env
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Go binaries and build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+vendor/
+
+# Test artifacts
+*.test
+*.out
+coverage.html
+coverage.txt
+
+# Runtime directories (uploaded/exported files)
+uploads/*
+!uploads/.gitkeep
+exports/*
+!exports/.gitkeep
+storage/*
+!storage/.gitkeep
+
+# Backup files (created during development)
+backup_before_dual_format/
+*.bak
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
