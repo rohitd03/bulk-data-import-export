@@ -194,12 +194,8 @@ func (s *Service) ProcessImport(ctx context.Context, file *os.File, job *models.
 }
 
 func (s *Service) processUsersImport(ctx context.Context, job *models.Job, file *os.File, log zerolog.Logger) error {
-	// Detect file format
-	filePath := ""
-	if job.FilePath != nil {
-		filePath = *job.FilePath
-	}
-	format := parsers.DetectFormat(filePath)
+	// Detect file format from the actual file path
+	format := parsers.DetectFormat(file.Name())
 
 	// First pass: parse and validate, store in staging
 	stagingBatch := make([]repository.StagingUser, 0, s.config.BatchSize)
@@ -385,12 +381,8 @@ func (s *Service) processUsersImport(ctx context.Context, job *models.Job, file 
 }
 
 func (s *Service) processArticlesImport(ctx context.Context, job *models.Job, file *os.File, log zerolog.Logger) error {
-	// Detect file format
-	filePath := ""
-	if job.FilePath != nil {
-		filePath = *job.FilePath
-	}
-	format := parsers.DetectFormat(filePath)
+	// Detect file format from the actual file path
+	format := parsers.DetectFormat(file.Name())
 
 	stagingBatch := make([]repository.StagingArticle, 0, s.config.BatchSize)
 	var validationErrors []*errors.ValidationError
@@ -558,12 +550,8 @@ func (s *Service) processArticlesImport(ctx context.Context, job *models.Job, fi
 }
 
 func (s *Service) processCommentsImport(ctx context.Context, job *models.Job, file *os.File, log zerolog.Logger) error {
-	// Detect file format
-	filePath := ""
-	if job.FilePath != nil {
-		filePath = *job.FilePath
-	}
-	format := parsers.DetectFormat(filePath)
+	// Detect file format from the actual file path
+	format := parsers.DetectFormat(file.Name())
 
 	stagingBatch := make([]repository.StagingComment, 0, s.config.BatchSize)
 	var validationErrors []*errors.ValidationError
