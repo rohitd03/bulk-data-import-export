@@ -9,9 +9,10 @@ import (
 type FileFormat string
 
 const (
-	FormatCSV    FileFormat = "csv"
-	FormatNDJSON FileFormat = "ndjson"
-	FormatJSON   FileFormat = "json"
+	FormatCSV     FileFormat = "csv"
+	FormatNDJSON  FileFormat = "ndjson"
+	FormatJSON    FileFormat = "json"
+	FormatUnknown FileFormat = "unknown"
 )
 
 // DetectFormat determines the file format from the filename extension
@@ -25,8 +26,7 @@ func DetectFormat(filename string) FileFormat {
 	case ".json":
 		return FormatJSON
 	default:
-		// Default to CSV for backwards compatibility
-		return FormatCSV
+		return FormatUnknown
 	}
 }
 
@@ -38,4 +38,9 @@ func (f FileFormat) IsCSV() bool {
 // IsNDJSON returns true if the format is NDJSON
 func (f FileFormat) IsNDJSON() bool {
 	return f == FormatNDJSON || f == FormatJSON
+}
+
+// IsUnknown returns true if the format is unknown
+func (f FileFormat) IsUnknown() bool {
+	return f == FormatUnknown
 }

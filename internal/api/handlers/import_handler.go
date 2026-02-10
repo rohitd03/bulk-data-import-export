@@ -14,6 +14,7 @@ import (
 	"github.com/rohit/bulk-import-export/internal/domain/models"
 	"github.com/rohit/bulk-import-export/internal/repository/postgres"
 	importservice "github.com/rohit/bulk-import-export/internal/service/import"
+	"github.com/rohit/bulk-import-export/internal/service/import/parsers"
 	"github.com/rohit/bulk-import-export/internal/worker"
 	"github.com/rs/zerolog"
 )
@@ -133,6 +134,13 @@ func (h *ImportHandler) CreateImport(c *gin.Context) {
 			return
 		}
 
+		// Validate file format
+		format := parsers.DetectFormat(header.Filename)
+		if format.IsUnknown() {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported file format, use .csv, .ndjson, .jsonl, or .json"})
+			return
+		}
+
 		// Save file
 		filePath, err = h.importSvc.SaveUploadedFile(file, header.Filename)
 		if err != nil {
@@ -163,6 +171,14 @@ func (h *ImportHandler) CreateImport(c *gin.Context) {
 			if err != nil {
 				h.logger.Error().Err(err).Str("url", req.FileURL).Msg("Failed to download file from URL")
 				c.JSON(http.StatusBadRequest, gin.H{"error": "failed to download file from URL: " + err.Error()})
+				return
+			}
+
+			// Validate file format
+			format := parsers.DetectFormat(filePath)
+			if format.IsUnknown() {
+				os.Remove(filePath) // Clean up downloaded file
+				c.JSON(http.StatusBadRequest, gin.H{"error": "unsupported file format, use .csv, .ndjson, .jsonl, or .json"})
 				return
 			}
 		} else {

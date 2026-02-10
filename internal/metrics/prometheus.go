@@ -244,13 +244,14 @@ func (c *Collector) SetActiveJobs(jobType interface{}, delta int) {
 		typeStr = fmt.Sprintf("%v", v)
 	}
 
-	if typeStr == "import" {
+	switch typeStr {
+	case "import":
 		if delta > 0 {
 			c.ImportJobsActive.WithLabelValues("all").Inc()
 		} else {
 			c.ImportJobsActive.WithLabelValues("all").Dec()
 		}
-	} else if typeStr == "export" {
+	case "export":
 		if delta > 0 {
 			c.ExportJobsActive.WithLabelValues("all").Inc()
 		} else {

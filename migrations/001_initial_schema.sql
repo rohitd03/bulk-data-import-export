@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Create indexes for users
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_email_lower ON users(LOWER(email));  -- For case-insensitive duplicate checks
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_users_active ON users(active);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS articles (
 
 -- Create indexes for articles
 CREATE INDEX IF NOT EXISTS idx_articles_slug ON articles(slug);
+CREATE INDEX IF NOT EXISTS idx_articles_slug_lower ON articles(LOWER(slug));  -- For case-insensitive duplicate checks
 CREATE INDEX IF NOT EXISTS idx_articles_author_id ON articles(author_id);
 CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
 CREATE INDEX IF NOT EXISTS idx_articles_published_at ON articles(published_at);
@@ -155,6 +157,7 @@ CREATE TABLE IF NOT EXISTS staging_users (
 -- Create indexes for staging_users
 CREATE INDEX IF NOT EXISTS idx_staging_users_job_id ON staging_users(job_id);
 CREATE INDEX IF NOT EXISTS idx_staging_users_email ON staging_users(email);
+CREATE INDEX IF NOT EXISTS idx_staging_users_email_lower ON staging_users(job_id, LOWER(email));  -- For case-insensitive duplicate checks within job
 CREATE INDEX IF NOT EXISTS idx_staging_users_is_valid ON staging_users(job_id, is_valid);
 CREATE INDEX IF NOT EXISTS idx_staging_users_staging_id ON staging_users(staging_id);
 
@@ -180,6 +183,7 @@ CREATE TABLE IF NOT EXISTS staging_articles (
 -- Create indexes for staging_articles
 CREATE INDEX IF NOT EXISTS idx_staging_articles_job_id ON staging_articles(job_id);
 CREATE INDEX IF NOT EXISTS idx_staging_articles_slug ON staging_articles(slug);
+CREATE INDEX IF NOT EXISTS idx_staging_articles_slug_lower ON staging_articles(job_id, LOWER(slug));  -- For case-insensitive duplicate checks within job
 CREATE INDEX IF NOT EXISTS idx_staging_articles_author_id ON staging_articles(author_id);
 CREATE INDEX IF NOT EXISTS idx_staging_articles_is_valid ON staging_articles(job_id, is_valid);
 

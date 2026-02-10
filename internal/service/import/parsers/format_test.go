@@ -16,9 +16,9 @@ func TestDetectFormat(t *testing.T) {
 		{"articles.NDJSON", FormatNDJSON},
 		{"comments.jsonl", FormatNDJSON},
 		{"data.json", FormatJSON},
-		{"noextension", FormatCSV}, // defaults to CSV
-		{"", FormatCSV},            // defaults to CSV
-		{"file.txt", FormatCSV},    // unknown defaults to CSV
+		{"noextension", FormatUnknown}, // unknown format
+		{"", FormatUnknown},            // unknown format
+		{"file.txt", FormatUnknown},    // unknown format
 	}
 
 	for _, tt := range tests {
@@ -39,6 +39,7 @@ func TestFileFormat_IsCSV(t *testing.T) {
 		{FormatCSV, true},
 		{FormatNDJSON, false},
 		{FormatJSON, false},
+		{FormatUnknown, false},
 	}
 
 	for _, tt := range tests {
@@ -58,12 +59,33 @@ func TestFileFormat_IsNDJSON(t *testing.T) {
 		{FormatCSV, false},
 		{FormatNDJSON, true},
 		{FormatJSON, true}, // JSON is treated as NDJSON
+		{FormatUnknown, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(string(tt.format), func(t *testing.T) {
 			if result := tt.format.IsNDJSON(); result != tt.expected {
 				t.Errorf("FileFormat(%q).IsNDJSON() = %v, want %v", tt.format, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestFileFormat_IsUnknown(t *testing.T) {
+	tests := []struct {
+		format   FileFormat
+		expected bool
+	}{
+		{FormatCSV, false},
+		{FormatNDJSON, false},
+		{FormatJSON, false},
+		{FormatUnknown, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(tt.format), func(t *testing.T) {
+			if result := tt.format.IsUnknown(); result != tt.expected {
+				t.Errorf("FileFormat(%q).IsUnknown() = %v, want %v", tt.format, result, tt.expected)
 			}
 		})
 	}
