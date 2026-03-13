@@ -1,3 +1,7 @@
+![CI](https://github.com/rohitd03/bulk-data-import-export/actions/workflows/ci.yml/badge.svg)
+![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 # Bulk Data Import/Export System
 
 A high-performance bulk data import/export system built with Go, PostgreSQL, and Prometheus metrics.
