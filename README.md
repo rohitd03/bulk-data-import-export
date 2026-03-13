@@ -321,6 +321,22 @@ Import `postman_collection.json` into Postman for a complete API testing environ
 - Target: 5000 rows/second for exports
 - Memory: O(1) memory usage through streaming
 
+## Architecture
+
+```mermaid
+graph TD
+    Client -->|HTTP Request| API
+    API -->|CSV/NDJSON| ImportService
+    API -->|Query + Filters| ExportService
+    ImportService -->|Batch Insert| StagingTable
+    StagingTable -->|Deduplicate & Merge| PostgreSQL
+    ExportService -->|Stream Query| PostgreSQL
+    ExportService -->|Async Job| WorkerPool
+    WorkerPool -->|Write File| Storage
+    API -->|Metrics| Prometheus
+    Prometheus --> Grafana
+```
+
 ## License
 
 MIT
